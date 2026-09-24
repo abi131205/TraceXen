@@ -1,0 +1,110 @@
+{
+  "case_id": "HHG-018",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "Unauthorized card-not-present transaction reported by cardholder.",
+    "affected_txn_ids": [
+      "3491361"
+    ],
+    "first_suspicious_txn_id": "3491361",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "DEV-3000943",
+      "DEV-3001089",
+      "DEV-3001098",
+      "DEV-3001176",
+      "DEV-3001172"
+    ],
+    "exposure_usd": 39.08,
+    "evidence": [
+      {
+        "claim": "Flagged transaction 3491361 ($ 39.08, in_person channel, billing region None) triggered by customer_report (model risk_score=N/A).",
+        "source": "graph",
+        "ref": "query:get_transaction(txn_id=3491361)",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "Retrieved 5 prior closed cases (CC-0255, CC-0405, CC-0454, CC-0631, CC-1450) for customer C02354.",
+        "source": "graph",
+        "ref": "query:search_similar_cases(customer_id=C02354)",
+        "entity_ids": [
+          "CC-0255",
+          "CC-0405",
+          "CC-0454",
+          "CC-0631",
+          "CC-1450"
+        ]
+      },
+      {
+        "claim": "Customer C02354 explicitly disputed transaction 3491361 as unauthorized.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C02354",
+          "3491361"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0255",
+      "CC-0405",
+      "CC-0454",
+      "CC-0631",
+      "CC-1450"
+    ],
+    "summary": "Alert (HHG-018) triggered on transaction 3491361 ($39.08) via customer_report. Investigation evaluated live graph evidence and card history. Outcome: FRAUD (fraud probability 0.95).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-018"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer C02354 stated they did not authorize or make the $39.08 transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "High risk score and suspicious indicators"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Verify transaction with cardholder"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; exposure $39.08"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Internal fraud case opened"
+      }
+    ],
+    "what_changed": "Customer denial confirmed fraud. Fraud probability raised to 0.95."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No regulatory threshold met",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer dispute confirmed unauthorized transaction, satisfying policy R2.",
+  "tool_calls": 4,
+  "tokens": 450,
+  "latency_s": 0.45
+}

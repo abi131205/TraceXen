@@ -1,0 +1,92 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "Unauthorized card-not-present transaction reported by cardholder.",
+    "affected_txn_ids": [
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476682",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "DEV-3036242",
+      "DEV-3107995",
+      "DEV-3476602",
+      "DEV-3476633",
+      "DEV-3476665"
+    ],
+    "exposure_usd": 482.12,
+    "evidence": [
+      {
+        "claim": "Flagged transaction 3476682 ($ 482.12, online channel, billing region None) triggered by customer_report (model risk_score=N/A).",
+        "source": "graph",
+        "ref": "query:get_transaction(txn_id=3476682)",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Customer C07297 explicitly disputed transaction 3476682 as unauthorized.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C07297",
+          "3476682"
+        ]
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Alert (HHG-006) triggered on transaction 3476682 ($482.12) via customer_report. Investigation evaluated live graph evidence and card history. Outcome: FRAUD (fraud probability 0.95).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-006"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer C07297 stated they did not authorize or make the $482.12 transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "High risk score and suspicious indicators"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Verify transaction with cardholder"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; exposure $482.12"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Internal fraud case opened"
+      }
+    ],
+    "what_changed": "Customer denial confirmed fraud. Fraud probability raised to 0.95."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No regulatory threshold met",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer dispute confirmed unauthorized transaction, satisfying policy R2.",
+  "tool_calls": 4,
+  "tokens": 450,
+  "latency_s": 0.45
+}

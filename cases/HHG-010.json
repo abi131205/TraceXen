@@ -1,0 +1,107 @@
+{
+  "case_id": "HHG-010",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "High model risk score combined with card-not-present online transaction.",
+    "affected_txn_ids": [
+      "3506725"
+    ],
+    "first_suspicious_txn_id": "3506725",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "DEV-3053503",
+      "DEV-3070986",
+      "DEV-3075894",
+      "DEV-3076736",
+      "DEV-3078052"
+    ],
+    "exposure_usd": 1000.03,
+    "evidence": [
+      {
+        "claim": "Flagged transaction 3506725 ($ 1000.03, online channel, billing region None) triggered by risk_score (model risk_score=0.90).",
+        "source": "graph",
+        "ref": "query:get_transaction(txn_id=3506725)",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Retrieved 1 prior closed cases (CC-0873) for customer C10434.",
+        "source": "graph",
+        "ref": "query:search_similar_cases(customer_id=C10434)",
+        "entity_ids": [
+          "CC-0873"
+        ]
+      },
+      {
+        "claim": "Cardholder contact confirmed transaction 3506725 was unauthorized.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C10434",
+          "3506725"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0873"
+    ],
+    "summary": "Alert (HHG-010) triggered on transaction 3506725 ($1000.03) via risk_score. Investigation evaluated live graph evidence and card history. Outcome: FRAUD (fraud probability 0.90).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-010"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer C10434 reported not recognizing the $1000.03 online charge."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "High risk score and suspicious indicators"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Verify transaction with cardholder"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; exposure $1000.03"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Internal fraud case opened"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/3a: Confirmed fraud meeting regulatory SAR filing criteria"
+      }
+    ],
+    "what_changed": "Customer denial confirmed fraud. Fraud probability raised to 0.90."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R2: Confirmed unauthorized transaction per customer denial",
+    "narrative": "Confirmed unauthorized transaction of $1000.03. Customer denied authorization.",
+    "subjects": [],
+    "total_amount_usd": 1000.03,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer contact confirmed high-risk online charge was unauthorized, satisfying policy R2.",
+  "tool_calls": 4,
+  "tokens": 450,
+  "latency_s": 0.45
+}

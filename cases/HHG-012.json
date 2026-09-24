@@ -1,0 +1,92 @@
+{
+  "case_id": "HHG-012",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.05,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "DEV-3002601",
+      "DEV-3002670",
+      "DEV-3005260",
+      "DEV-3002741",
+      "DEV-3017897"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Flagged transaction 3553342 ($ 30.91, in_person channel, billing region None) triggered by risk_score (model risk_score=0.55).",
+        "source": "graph",
+        "ref": "query:get_transaction(txn_id=3553342)",
+        "entity_ids": [
+          "3553342"
+        ]
+      },
+      {
+        "claim": "Retrieved 2 prior closed cases (CC-0003, CC-2370) for customer C05876.",
+        "source": "graph",
+        "ref": "query:search_similar_cases(customer_id=C05876)",
+        "entity_ids": [
+          "CC-0003",
+          "CC-2370"
+        ]
+      },
+      {
+        "claim": "Customer C05876 confirmed authorizing transaction 3553342.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C05876",
+          "3553342"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0003",
+      "CC-2370"
+    ],
+    "summary": "Alert (HHG-012) triggered on transaction 3553342 ($30.91) via risk_score. Investigation evaluated live graph evidence and card history. Outcome: LEGITIMATE (fraud probability 0.05).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-012"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer C05876 confirmed making the $30.91 transaction in home billing region None."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Fraud probability < 0.70 on single signal, verify before blocking"
+      }
+    ],
+    "final": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Customer confirmed transaction as legitimate"
+      }
+    ],
+    "what_changed": "Customer confirmation cleared the alert as legitimate."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No regulatory threshold met",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer verification confirmed the transaction was legitimate, satisfying policy R3 and stopping criteria.",
+  "tool_calls": 4,
+  "tokens": 450,
+  "latency_s": 0.45
+}

@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #071A1D;
+    color: #F4EBD0;
+    font-family: 'Victor Mono', monospace;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #071A1D;
+}
+::-webkit-scrollbar-thumb {
+  background: #13393E;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #176B6C;
+}
+
+/* Coastal Geometry Background Patterns */
+.bg-azulejo-grid {
+  position: relative;
+}
+.bg-azulejo-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#176B6C 0.75px, transparent 0.75px), radial-gradient(#A84F32 0.75px, #071A1D 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.bg-sea-gradient {
+  background: radial-gradient(circle at 50% 0%, #0D282C 0%, #071A1D 70%);
+}
+
+/* React Flow Overrides for Midnight Arabian Sea Theme */
+.react-flow__renderer {
+  background: transparent !important;
+}
+.react-flow__node {
+  border-radius: 8px !important;
+}
+.react-flow__controls {
+  background-color: #0D282C !important;
+  border: 1px solid #13393E !important;
+  border-radius: 6px !important;
+}
+.react-flow__controls-button {
+  background-color: #0D282C !important;
+  border-bottom: 1px solid #13393E !important;
+  fill: #D8C39A !important;
+}
+.react-flow__controls-button:hover {
+  background-color: #18474E !important;
+}
+.react-flow__attribution {
+  display: none !important;
+}

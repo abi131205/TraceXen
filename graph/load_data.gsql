@@ -1,0 +1,28 @@
+// GSQL Loading Jobs for TraceXenGraph (TigerGraph 4.2.5 / Savanna)
+USE GRAPH TraceXenGraph
+
+CREATE LOADING JOB load_tracexen_data FOR GRAPH TraceXenGraph {
+    DEFINE FILENAME tx_file;
+    DEFINE FILENAME id_file;
+    DEFINE FILENAME cases_file;
+
+    // 1. Transactions & Primary Entity Edges
+    LOAD tx_file TO VERTEX Customer VALUES($393) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO VERTEX Card VALUES(gsql_concat($393, "-K1"), $9, $8, $7) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO VERTEX Transaction VALUES($0, $2, $394, $395, $396, $3, $14, $15, $10, $11) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO VERTEX BillingRegion VALUES($10, $10, $11) USING SEPARATOR=",", HEADER="true", REDUCE=true;
+    LOAD tx_file TO VERTEX EmailDomain VALUES($14) USING SEPARATOR=",", HEADER="true", REDUCE=true WHERE $14 IS NOT NULL;
+
+    LOAD tx_file TO EDGE OWNS VALUES($393, gsql_concat($393, "-K1")) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO EDGE MADE VALUES(gsql_concat($393, "-K1"), $0) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO EDGE BILLED_IN VALUES($0, $10) USING SEPARATOR=",", HEADER="true";
+    LOAD tx_file TO EDGE PURCHASER_EMAIL VALUES($0, $14) USING SEPARATOR=",", HEADER="true" WHERE $14 IS NOT NULL;
+
+    // 2. Identity Records & Devices
+    LOAD id_file TO VERTEX DeviceProfile VALUES($0, $39, $40, $30, $31, $33) USING SEPARATOR=",", HEADER="true";
+    LOAD id_file TO EDGE FROM_DEVICE VALUES($0, $0) USING SEPARATOR=",", HEADER="true";
+
+    // 3. Closed Cases History
+    LOAD cases_file TO VERTEX ClosedCase VALUES($0, $5, $6, $10, $14, $14) USING SEPARATOR=",", HEADER="true";
+    LOAD cases_file TO EDGE ON_CARD VALUES($0, $2) USING SEPARATOR=",", HEADER="true";
+}

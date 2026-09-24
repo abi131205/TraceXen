@@ -1,0 +1,108 @@
+{
+  "case_id": "HHG-019",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.9,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "High model risk score combined with card-not-present online transaction.",
+    "affected_txn_ids": [
+      "3503878"
+    ],
+    "first_suspicious_txn_id": "3503878",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "DEV-3002221",
+      "DEV-3006150",
+      "DEV-3007932",
+      "DEV-3017846",
+      "DEV-3017822"
+    ],
+    "exposure_usd": 99.92,
+    "evidence": [
+      {
+        "claim": "Flagged transaction 3503878 ($ 99.92, online channel, billing region None) triggered by risk_score (model risk_score=0.90).",
+        "source": "graph",
+        "ref": "query:get_transaction(txn_id=3503878)",
+        "entity_ids": [
+          "3503878"
+        ]
+      },
+      {
+        "claim": "Retrieved 4 prior closed cases (CC-2011, CC-2087, CC-2860, CC-5026) for customer C07987.",
+        "source": "graph",
+        "ref": "query:search_similar_cases(customer_id=C07987)",
+        "entity_ids": [
+          "CC-2011",
+          "CC-2087",
+          "CC-2860",
+          "CC-5026"
+        ]
+      },
+      {
+        "claim": "Cardholder contact confirmed transaction 3503878 was unauthorized.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C07987",
+          "3503878"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2011",
+      "CC-2087",
+      "CC-2860",
+      "CC-5026"
+    ],
+    "summary": "Alert (HHG-019) triggered on transaction 3503878 ($99.92) via risk_score. Investigation evaluated live graph evidence and card history. Outcome: FRAUD (fraud probability 0.90).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-019"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer C07987 reported not recognizing the $99.92 online charge."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "High risk score and suspicious indicators"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Verify transaction with cardholder"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; exposure $99.92"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Internal fraud case opened"
+      }
+    ],
+    "what_changed": "Customer denial confirmed fraud. Fraud probability raised to 0.90."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No regulatory threshold met",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer contact confirmed high-risk online charge was unauthorized, satisfying policy R2.",
+  "tool_calls": 4,
+  "tokens": 450,
+  "latency_s": 0.45
+}

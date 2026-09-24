@@ -1,0 +1,34 @@
+// TraceXen GSQL Investigation Queries
+
+// 1. Get Transaction with 1-hop sub-graph details
+CREATE QUERY get_transaction_detail(STRING txn_id) FOR GRAPH TraceXenGraph {
+    Start = {Transaction.*};
+    Target = SELECT t FROM Start:t WHERE t.id == txn_id;
+    PRINT Target;
+}
+
+// 2. Get Card Transaction Timeline
+CREATE QUERY get_card_timeline(STRING card_id, INT max_count) FOR GRAPH TraceXenGraph {
+    StartCard = {Card.*};
+    Cards = SELECT c FROM StartCard:c WHERE c.id == card_id;
+    Txns = SELECT t FROM Cards:c -(MADE:e)-> Transaction:t ORDER BY t.ts DESC LIMIT max_count;
+    PRINT Txns;
+}
+
+// 3. Search Similar Closed Cases
+CREATE QUERY search_similar_closed_cases(STRING card_id, STRING customer_id) FOR GRAPH TraceXenGraph {
+    StartCase = {ClosedCase.*};
+    Cases = SELECT c FROM StartCase:c WHERE c.card_id == card_id OR c.customer_id == customer_id;
+    PRINT Cases;
+}
+
+// 4. Get Connected Cards via Shared Device Profile
+CREATE QUERY get_connected_cards_via_device(STRING card_id) FOR GRAPH TraceXenGraph {
+    StartCard = {Card.*};
+    Cards = SELECT c FROM StartCard:c WHERE c.id == card_id;
+    Txns = SELECT t FROM Cards:c -(MADE:e)-> Transaction:t;
+    Devices = SELECT d FROM Txns:t -(FROM_DEVICE:e)-> DeviceProfile:d;
+    OtherTxns = SELECT t2 FROM Devices:d <-(FROM_DEVICE:e)- Transaction:t2;
+    OtherCards = SELECT c2 FROM OtherTxns:t2 <-(MADE:e)- Card:c2 WHERE c2.id != card_id;
+    PRINT OtherCards;
+}

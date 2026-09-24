@@ -1,0 +1,21 @@
+// TraceXen Graph Schema for TigerGraph 4.2.5 / Savanna
+
+CREATE VERTEX Customer (PRIMARY_ID id STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX Card (PRIMARY_ID id STRING, card_type STRING, card_category STRING, card_network STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX Transaction (PRIMARY_ID id STRING, amount DOUBLE, ts STRING, channel STRING, risk_score DOUBLE, product_cd STRING, p_email STRING, r_email STRING, addr1 STRING, addr2 STRING, customer_id STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX DeviceProfile (PRIMARY_ID id STRING, device_type STRING, device_info STRING, os STRING, browser STRING, screen_res STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX EmailDomain (PRIMARY_ID domain STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX BillingRegion (PRIMARY_ID region_id STRING, addr1 STRING, addr2 STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX ClosedCase (PRIMARY_ID case_id STRING, verdict STRING, pattern STRING, exposure DOUBLE, summary STRING, analyst_notes STRING) WITH STATS="outdegree_by_edgetype"
+CREATE VERTEX InvestigationCase (PRIMARY_ID case_id STRING, status STRING, verdict STRING, fraud_prob DOUBLE, pattern STRING, exposure DOUBLE, created_at INT) WITH STATS="outdegree_by_edgetype"
+
+CREATE DIRECTED EDGE OWNS (FROM Customer, TO Card)
+CREATE DIRECTED EDGE MADE (FROM Card, TO Transaction)
+CREATE DIRECTED EDGE FROM_DEVICE (FROM Transaction, TO DeviceProfile)
+CREATE DIRECTED EDGE PURCHASER_EMAIL (FROM Transaction, TO EmailDomain)
+CREATE DIRECTED EDGE BILLED_IN (FROM Transaction, TO BillingRegion)
+CREATE DIRECTED EDGE NEXT (FROM Transaction, TO Transaction, delta_t INT)
+CREATE DIRECTED EDGE INVOLVES (FROM ClosedCase, TO Transaction)
+CREATE DIRECTED EDGE ON_CARD (FROM ClosedCase, TO Card)
+CREATE DIRECTED EDGE CONNECTED_TO (FROM ClosedCase, TO Card)
+CREATE DIRECTED EDGE INVESTIGATES (FROM InvestigationCase, TO Transaction)
