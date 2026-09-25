@@ -40,28 +40,28 @@ TraceXen combines **TigerGraph Savanna 4.2.5** sub-second graph pattern traversa
 
 ```mermaid
 flowchart TD
-    subgraph Data & Graph Storage
-        DS[IEEE-CIS Dataset & Case Pack] --> TG[(TigerGraph Savanna 4.2.5\nTraceXenGraph)]
-        HIST[Closed Cases History\nCC-1066, CC-1673...] --> TG
+    subgraph Data_Storage["Data & Graph Storage"]
+        DS["IEEE-CIS Dataset & Case Pack"] --> TG[("TigerGraph Savanna 4.2.5<br/>TraceXenGraph")]
+        HIST["Closed Cases History<br/>CC-1066, CC-1673..."] --> TG
     end
 
-    subgraph Backend Engine FastAPI
-        TG <-->|RESTPP API / GSQL| REPO[TigerGraphRepository]
-        REPO --> INV[InvestigationService]
-        INV --> POL[DeterministicPolicyEngine\nRules R1–R10]
-        POL --> ACT[Next-Best Action Engine\nauto / L1 / L2 Routes]
-        POL --> SAR[SAR Generator\nRules R2 / R10]
+    subgraph Backend_Engine["Backend Engine (FastAPI)"]
+        TG <-->|"RESTPP API / GSQL"| REPO["TigerGraphRepository"]
+        REPO --> INV["InvestigationService"]
+        INV --> POL["DeterministicPolicyEngine<br/>Rules R1–R10"]
+        POL --> ACT["Next-Best Action Engine<br/>auto / L1 / L2 Routes"]
+        POL --> SAR["SAR Generator<br/>Rules R2 / R10"]
     end
 
-    subgraph Production REST API & State
-        INV --> JSON[Auditable Case JSON\nHHG-001 to HHG-020]
-        JSON --> API[/api/v1/cases\nRender Service]
+    subgraph Production_API["Production REST API & State"]
+        INV --> JSON["Auditable Case JSON<br/>HHG-001 to HHG-020"]
+        JSON --> API["/api/v1/cases<br/>Render Service"]
     end
 
-    subgraph Frontend Console React Flow
-        API <-->|REST / JSON| UI[TraceXen Console\nVercel SPA]
-        UI --> GRAPH[React Flow Graph View\nEvidence Pulse]
-        UI --> PANELS[Policy & Action Panel\nSAR Regulatory Brief]
+    subgraph Frontend_Console["Frontend Console (React Flow)"]
+        API <-->|"REST / JSON"| UI["TraceXen Console<br/>Vercel SPA"]
+        UI --> GRAPH["React Flow Graph View<br/>Evidence Pulse"]
+        UI --> PANELS["Policy & Action Panel<br/>SAR Regulatory Brief"]
     end
 ```
 
