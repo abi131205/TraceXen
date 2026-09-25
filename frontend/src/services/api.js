@@ -1,4 +1,16 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+function getApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) {
+    return '/api/v1';
+  }
+  const cleanUrl = envUrl.replace(/\/+$/, '');
+  if (cleanUrl.endsWith('/api/v1')) {
+    return cleanUrl;
+  }
+  return `${cleanUrl}/api/v1`;
+}
+
+const API_BASE = getApiBaseUrl();
 
 export async function fetchSystemStatus() {
   try {
