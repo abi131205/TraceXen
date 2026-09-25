@@ -39,6 +39,8 @@ build/
 
 # Data & CSV files (except small placeholders)
 data/HHGOA_IEEE/*.csv
+!**/case_pack.csv
+!data/case_pack.csv
 *.zip
 
 # IDE & OS

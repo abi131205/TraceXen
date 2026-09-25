@@ -19,40 +19,40 @@ export default function System({ systemStatus }) {
   const isConnected = systemStatus?.tigergraph_connected ?? true;
 
   const vertices = [
-    { type: 'Customer', id: 'cust_id', desc: 'Bank customer / Account holder entity' },
-    { type: 'Card', id: 'card_id', desc: 'Payment card (Credit/Debit/Prepaid)' },
-    { type: 'Device', id: 'device_id', desc: 'Hardware device fingerprint / IMEI' },
-    { type: 'IP', id: 'ip_address', desc: 'IP address used in transactions' },
-    { type: 'Merchant', id: 'merchant_id', desc: 'Merchant endpoint / terminal' },
-    { type: 'Transaction', id: 'tx_id', desc: 'Financial transaction record with amount, timestamp, region' },
-    { type: 'Case', id: 'case_id', desc: 'Active or historic fraud investigation case' },
-    { type: 'Rule', id: 'rule_id', desc: 'Fraud engine policy rule definition' },
+    { type: 'Customer', id: 'id', desc: 'Bank customer / Account holder entity' },
+    { type: 'Card', id: 'id', desc: 'Payment card with card_type, card_category, and card_network' },
+    { type: 'Transaction', id: 'id', desc: 'Financial transaction record with amount ($ USD), ts, channel, risk_score, p_email' },
+    { type: 'DeviceProfile', id: 'id', desc: 'Hardware device fingerprint (device_type, os, browser, screen_res)' },
+    { type: 'EmailDomain', id: 'domain', desc: 'Purchaser email domain entity for cross-account risk clustering' },
+    { type: 'BillingRegion', id: 'region_id', desc: 'Geographic billing region cluster (addr1, addr2)' },
+    { type: 'ClosedCase', id: 'case_id', desc: 'Historic closed fraud case record (verdict, pattern, exposure)' },
+    { type: 'InvestigationCase', id: 'case_id', desc: 'Active investigation case persisted back to TigerGraph Savanna' },
   ];
 
   const edges = [
-    { type: 'OWNS_CARD', source: 'Customer', target: 'Card', desc: 'Account ownership relationship' },
-    { type: 'PERFORMED_TRANSACTION', source: 'Customer/Card', target: 'Transaction', desc: 'Transaction initiation' },
-    { type: 'USED_DEVICE', source: 'Transaction', target: 'Device', desc: 'Device used for transaction' },
-    { type: 'TRANSACTED_FROM_IP', source: 'Transaction', target: 'IP', desc: 'IP origin of transaction' },
-    { type: 'TRANSACTED_AT', source: 'Transaction', target: 'Merchant', desc: 'Target merchant for payment' },
-    { type: 'ASSOCIATED_WITH_CASE', source: 'Transaction/Customer', target: 'Case', desc: 'Links entity to investigation case' },
-    { type: 'HAS_CLOSED_CASE', source: 'Customer', target: 'Case', desc: 'Historic closed case history for risk scoring' },
-    { type: 'TRIGGERED_RULE', source: 'Case/Transaction', target: 'Rule', desc: 'Policy rule execution mapping' },
-    { type: 'SHARES_DEVICE_WITH', source: 'Customer', target: 'Customer', desc: 'Inferred multi-account device link' },
-    { type: 'SHARES_IP_WITH', source: 'Customer', target: 'Customer', desc: 'Inferred IP network cluster link' },
+    { type: 'OWNS', source: 'Customer', target: 'Card', desc: 'Direct account to payment card ownership link' },
+    { type: 'MADE', source: 'Card', target: 'Transaction', desc: 'Payment card execution of financial transaction' },
+    { type: 'FROM_DEVICE', source: 'Transaction', target: 'DeviceProfile', desc: 'Device fingerprint used during transaction' },
+    { type: 'PURCHASER_EMAIL', source: 'Transaction', target: 'EmailDomain', desc: 'Domain entity associated with purchaser email' },
+    { type: 'BILLED_IN', source: 'Transaction', target: 'BillingRegion', desc: 'Geographic billing region location of payment' },
+    { type: 'NEXT', source: 'Transaction', target: 'Transaction', desc: 'Chronological transaction sequence with time delta' },
+    { type: 'INVOLVES', source: 'ClosedCase', target: 'Transaction', desc: 'Historical closed case involvement in transaction' },
+    { type: 'ON_CARD', source: 'ClosedCase', target: 'Card', desc: 'Historical closed case recorded on target card' },
+    { type: 'CONNECTED_TO', source: 'ClosedCase', target: 'Card', desc: 'Associated card linkage from past fraud investigations' },
+    { type: 'INVESTIGATES', source: 'InvestigationCase', target: 'Transaction', desc: 'Active investigation case link to flagged transaction' },
   ];
 
   const rules = [
-    { code: 'R1', name: 'High Amount Velocity', desc: 'Multiple high-value transactions within short window' },
-    { code: 'R2', name: 'New Device + High Amount', desc: 'Unrecognized device ID on transaction > ₹50,000' },
-    { code: 'R3', name: 'Out of Region Sequence', desc: 'Transaction location geographically inconsistent with customer home region' },
-    { code: 'R4', name: 'Multiple Card Testing', desc: 'Low-value rapid authorization attempts across multiple cards' },
-    { code: 'R5', name: 'Shared Device Multi-Account', desc: 'Device linked to 3+ distinct customer IDs' },
-    { code: 'R6', name: 'Shared IP Cluster', desc: 'IP address shared by multiple high-risk accounts' },
-    { code: 'R7', name: 'Historic Closed Case Recurrence', desc: 'Customer associated with prior confirmed fraud cases (CC-*)' },
-    { code: 'R8', name: 'Account Takeover Pattern', desc: 'Device change + password/contact change + immediate transfer' },
-    { code: 'R9', name: 'Card Not Present (CNP) Spike', desc: 'Sudden burst of international CNP e-commerce authorizations' },
-    { code: 'R10', name: 'High Risk Combination', desc: 'Risk score >= 0.70 with 2+ active policy violations triggering mandatory SAR' },
+    { code: 'R1', name: 'Weak Signal Verification', desc: 'Fraud probability < 0.70 on single signal requires customer verification before blocking' },
+    { code: 'R2', name: 'Confirmed Customer Denial', desc: 'Customer denial confirms fraud; raises probability to >=0.85, triggers card block ($ exposure USD)' },
+    { code: 'R3', name: 'Customer Confirmation Clears Alert', desc: 'Customer confirmation clears transaction alert as legitimate (CLOSE_NO_FRAUD)' },
+    { code: 'R4', name: '24h No Response Escalation', desc: 'No customer response within 24h triggers increased monitoring and authorization decline' },
+    { code: 'R5', name: 'Card Testing Sequence', desc: 'Rapid low-value authorization sequence triggers transaction decline & step-up auth' },
+    { code: 'R6', name: 'Shared Origin / Cluster Link', desc: 'Shared device profile or billing region across cards triggers connected card monitoring' },
+    { code: 'R7', name: 'Disputed Recurring Charge', desc: 'Disputed recurring subscription charge opens case and triggers cardholder verification notice' },
+    { code: 'R8', name: 'Uncertain High Exposure Escalation', desc: 'Uncertain verdict with exposure exceeding $500 USD escalates directly to L1 analyst' },
+    { code: 'R9', name: 'Undocumented Abuse Pattern', desc: 'Unrecognized anomaly pattern creates case, mandates analyst review and SAR filing' },
+    { code: 'R10', name: 'Multi-Card / Compromise Lockdown', desc: '2+ confirmed compromised cards or credential breach mandates L2 BLOCK_ALL_CARDS' },
   ];
 
   return (

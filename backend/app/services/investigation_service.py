@@ -17,7 +17,15 @@ class InvestigationService:
 
     async def investigate_case(self, case_id: str) -> CaseAnswer:
         # 1. Load case from case_pack.csv
-        case_pack_path = os.path.join(self.data_dir, "case_pack.csv")
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        candidates = [
+            os.path.join(self.data_dir, "case_pack.csv"),
+            os.path.join(base_dir, "data", "case_pack.csv"),
+            os.path.join(base_dir, "data", "HHGOA_IEEE", "case_pack.csv"),
+            os.path.join(base_dir, "cases", "case_pack.csv"),
+            os.path.join(base_dir, "case_pack.csv"),
+        ]
+        case_pack_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
         df_cases = pd.read_csv(case_pack_path)
         matched_case = df_cases[df_cases["case_id"] == case_id]
         if matched_case.empty:
